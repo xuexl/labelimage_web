@@ -20,7 +20,7 @@ server.listen(port, hostname, () => {
 });
 
 var files = [];
-var cur = -1;
+var cur = 0;
 function init(){	
 	let imgPath = path.join(root, 'images'); 	
 	fs.readdir(imgPath, (err, filelist)=>{
@@ -34,8 +34,11 @@ function route(url, res){
 	if(url.includes('index')){		
 		index(res);
 	}
+	else if(url.includes('curr')){
+		curr(res);
+	}
 	else if(url.includes('prev')){
-		prev();
+		prev(res);
 	}
 	else if(url.includes('next')){
 		next(res);
@@ -46,7 +49,7 @@ function route(url, res){
 	else if(url.includes('images')){
 		showImg(res, url);
 	}
-	
+	else index(res);
 }
 
 function index(res){
@@ -59,15 +62,30 @@ function index(res){
 	});	
 }
 
-function prev(){
+function curr(res){
+	//当前图片	
+	let f = files[cur];
+	
+	res.statusCode = 200;
+	res.setHeader('Content-Type', 'text/plain');	
+	res.write(path.join('../images/', f));
+	res.end();	
+}
+
+function prev(res){
 	//上一张图片
+	if(cur > 0) cur--;
+	let f = files[cur];
 	
-	
+	res.statusCode = 200;
+	res.setHeader('Content-Type', 'text/plain');	
+	res.write(path.join('../images/', f));
+	res.end();	
 }
 
 function next(res){
 	//下一张图片
-	cur++;
+	if(cur < (files.length - 1)) cur++;
 	let f = files[cur];
 	
 	res.statusCode = 200;

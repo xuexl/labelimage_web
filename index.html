@@ -10,22 +10,20 @@
 		<img id="image" src="" ondragstart="return false;" style="top:0p;left:0px;"/>
 	</div>
 	<div id='tools'>
-		<button>上一张</button>
-		<button>下一张</button>		
+		<button id="prev">上一张</button>
+		<button id="next">下一张</button>		
 		<button id="ok">确定</button>
 	<div>
-	<div id="mask" style="display:block;width:0px;height:0px;position:absolute;top:0px;left:0px;border:2px solid red"></div>
+	<div id="mask"></div>
 	<script>
 		function init(){
+			initMask();					
+			curr();
 			bindEvent();
-			
-			$.get('/next', (d)=>{
-				//
-				var img = $('#image');
-				img.attr('src', d);
-				
-				
-			});
+		}
+		
+		function initMask(){
+			$('#mask').css({display:"block",width:"0px",height:"0px",position:"absolute",top:"0px",left:"0px",border:"2px solid red"});
 		}
 		
 		function bindEvent(){
@@ -63,7 +61,17 @@
 				paint = false;
 			});
 			//
-			$('#ok').bind('click', (e)=>{
+			$('#prev').click((e)=>{
+				e.stopPropagation();
+				
+				prev();
+			});
+			$('#next').click((e)=>{
+				e.stopPropagation();
+				
+				next();
+			});
+			$('#ok').click((e)=>{
 				e.stopPropagation();
 				
 				let img = $('#image');
@@ -71,8 +79,37 @@
 				let h = img.height();
 				
 				$.get('/tag', {"w": w, "h": h, "l": l, "t": t, "ml": ml, "mt": mt}, ()=>{
-					
+					initMask();				
+					next();	
 				});
+			});
+			$(document).keypress((e)=>{
+				e.stopPropagation();
+				
+				if(e.which == 13){
+					$('#ok').click();
+				}
+			});
+			
+		}
+		
+		function showImage(d){ $('#image').attr('src', d); }
+		
+		function curr(){
+			$.get('/curr', (d)=>{
+				showImage(d);
+			});
+		}
+		
+		function prev(){
+			$.get('/prev', (d)=>{
+				showImage(d);
+			});
+		}
+		
+		function next(){
+			$.get('/next', (d)=>{
+				showImage(d);
 			});
 		}
 		
