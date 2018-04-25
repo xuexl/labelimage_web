@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf8" />
+	<title>voc 图片标识</title>
+	<script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+</head>
+<body>	
+	<div>
+		<!-- <canvas id='canvas'></canvas> -->
+		<img id="image" src="" ondragstart="return false;" style="top:0p;left:0px;"/>
+	</div>
+	<div id='tools'>
+		<button>上一张</button>
+		<button>下一张</button>		
+		<button id="ok">确定</button>
+	<div>
+	<div id="mask" style="display:block;width:0px;height:0px;position:absolute;top:0px;left:0px;border:2px solid red"></div>
+	<script>
+		function init(){
+			bindEvent();
+			
+			$.get('/next', (d)=>{
+				//
+				var img = $('#image');
+				img.attr('src', d);
+				
+				
+			});
+		}
+		
+		function bindEvent(){
+			var img = $('#image'), check = false;
+			img.mouseover((e)=>{ check = true; });
+			img.mouseout((e)=>{ check = false; });
+			//
+			var t = 0, l = 0, mt = 0, ml = 0;
+			var paint = false;
+			$('body').mousedown((e)=>{
+				e.stopPropagation();
+				
+				if(!check) return;
+				if(!paint){
+					l = e.pageX;
+					t = e.pageY;						
+					$('#mask').css({top:t+'px', left:l+'px'});
+					paint = true;
+				}
+			});
+			$('body').mousemove((e)=>{
+				e.stopPropagation();
+				
+				if(paint){		
+					$('#mask').css({width:(e.pageX-l)+'px', height:(e.pageY-t)+'px'});
+				}
+			});
+			$('body').mouseup((e)=>{					
+				e.stopPropagation();
+						
+				if(paint){
+					ml = e.pageX;
+					mt = e.pageY;
+				}
+				paint = false;
+			});
+			//
+			$('#ok').bind('click', (e)=>{
+				e.stopPropagation();
+				
+				let img = $('#image');
+				let w = img.width();
+				let h = img.height();
+				
+				$.get('/tag', {"w": w, "h": h, "l": l, "t": t, "ml": ml, "mt": mt});
+			});
+		}
+		
+		init();
+	</script>
+</body>
+</html>
