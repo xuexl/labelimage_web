@@ -70,7 +70,9 @@
 				let w = img.width();
 				let h = img.height();
 				
-				$.get('/tag', {"w": w, "h": h, "l": l, "t": t, "ml": ml, "mt": mt});
+				$.get('/tag', {"w": w, "h": h, "l": l, "t": t, "ml": ml, "mt": mt}, ()=>{
+					
+				});
 			});
 		}
 		

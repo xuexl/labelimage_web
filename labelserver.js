@@ -29,8 +29,7 @@ function init(){
 }
 
 //route
-function route(url, res){
-	console.log(url);
+function route(url, res){	
 	//根据url 转入不同的处理函数
 	if(url.includes('index')){		
 		index(res);
@@ -80,6 +79,8 @@ function next(res){
 function saveTag(res, url){
 	//保存标记
 	//解析标记参数
+	url = url.substring(url.indexOf('?') + 1, url.length);
+	
 	let params = querystring.parse(url);
 	let f = files[cur];
 	
@@ -120,17 +121,19 @@ function saveTag(res, url){
 			</object>	
 		</annotation>`;
 	
-	appendToFileList(xml);
+	
+	let xmlFileName = imageName.replace('jpg', 'xml');
+	appendToFileList(xmlFileName, xml);
 	
 	res.statusCode = 200;
 	res.setHeader('Content-Type', 'text/plain');
 	res.end();
 }
 
-function appendToFileList(xmlContent){
+function appendToFileList(xmlFileName, xmlContent){
 	//添加到文件列表
-	console.log(xmlContent);
 	
+	fs.appendFileSync(path.join(root, 'voc', xmlFileName), xmlContent);	
 }
 
 function showImg(res, url){
