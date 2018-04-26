@@ -7,7 +7,7 @@
 <body>	
 	<div>
 		<!-- <canvas id='canvas'></canvas> -->
-		<img id="image" src="" ondragstart="return false;" style="top:0p;left:0px;"/>
+		<img id="image" src="" ondragstart="return false;" style="top:0px;left:0px;"/>
 	</div>
 	<div id='tools'>
 		<button id="prev">上一张</button>
@@ -89,11 +89,12 @@
 				if(e.which == 13){
 					$('#ok').click();
 				}
-			});
-			
+			});					
 		}
 		
-		function showImage(d){ $('#image').attr('src', d); }
+		function showImage(d){ 
+			$('#image').attr('src', d);
+		}
 		
 		function curr(){
 			$.get('/curr', (d)=>{

@@ -8,7 +8,7 @@ const Buffer = require('buffer').Buffer;
 const hostname = '127.0.0.1';
 const port = 3000;
 const root = __dirname;
-
+const imgdir = '../images2/';
 const server = http.createServer((req, res) => {
 	route(req.url, res);
 	
@@ -22,10 +22,11 @@ server.listen(port, hostname, () => {
 var files = [];
 var cur = 0;
 function init(){	
-	let imgPath = path.join(root, 'images'); 	
+	let imgPath = path.join(root, 'images2'); 	
 	fs.readdir(imgPath, (err, filelist)=>{
 		files = filelist;
 	});
+	console.log(files)
 }
 
 //route
@@ -68,7 +69,7 @@ function curr(res){
 	
 	res.statusCode = 200;
 	res.setHeader('Content-Type', 'text/plain');	
-	res.write(path.join('../images/', f));
+	res.write(path.join(imgdir, f));
 	res.end();	
 }
 
@@ -79,7 +80,7 @@ function prev(res){
 	
 	res.statusCode = 200;
 	res.setHeader('Content-Type', 'text/plain');	
-	res.write(path.join('../images/', f));
+	res.write(path.join(imgdir, f));
 	res.end();	
 }
 
@@ -90,7 +91,7 @@ function next(res){
 	
 	res.statusCode = 200;
 	res.setHeader('Content-Type', 'text/plain');	
-	res.write(path.join('../images/', f));
+	res.write(path.join(imgdir, f));
 	res.end();
 }
 
@@ -113,31 +114,31 @@ function saveTag(res, url){
 	let mt = params.mt;
 	
 	let xml = 
-		`<annotation>
-			<folder>${imageFolder}</folder>
-			<filename>${imageName}</filename>
-			<source>
-				<database>Unknown</database>		
-			</source>
-			<size>
-				<width>${w}</width>
-				<height>${h}</height>
-				<depth>3</depth>
-			</size>
-			<segmented>0</segmented>
-			<object>
-				<name>${objectType}</name>
-				<pose>Unspecified</pose>
-				<truncated>0</truncated>
-				<difficult>0</difficult>
-				<bndbox>
-					<xmin>${l}</xmin>
-					<ymin>${t}</ymin>
-					<xmax>${ml}</xmax>
-					<ymax>${mt}</ymax>
-				</bndbox>
-			</object>	
-		</annotation>`;
+`<annotation>
+	<folder>${imageFolder}</folder>
+	<filename>${imageName}</filename>
+	<source>
+		<database>Unknown</database>		
+	</source>
+	<size>
+		<width>${w}</width>
+		<height>${h}</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>${objectType}</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>${l}</xmin>
+			<ymin>${t}</ymin>
+			<xmax>${ml}</xmax>
+			<ymax>${mt}</ymax>
+		</bndbox>
+	</object>	
+</annotation>`;
 	
 	
 	let xmlFileName = imageName.replace('jpg', 'xml');
