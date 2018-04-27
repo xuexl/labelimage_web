@@ -5,42 +5,47 @@
 	<script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
 </head>
 <body>	
-	<div>
-		<!-- <canvas id='canvas'></canvas> -->
+	<div style="border:1px solid green">
 		<img id="image" src="" ondragstart="return false;" style="top:0px;left:0px;"/>
 	</div>
 	<div id='tools'>
 		<button id="prev">上一张</button>
 		<button id="next">下一张</button>		
 		<button id="ok">确定</button>
-	<div>
-	<div id="mask"></div>
+	<div>	
+	<p id="name"></p>
 	<script>
-		function init(){
-			initMask();					
+		function init(){				
 			curr();
 			bindEvent();
 		}
 		
-		function initMask(){
-			$('#mask').css({display:"block",width:"0px",height:"0px",position:"absolute",top:"0px",left:"0px",border:"2px solid red"});
+		function addMask(){
+			return $('<div tag="mask"></div>').css({display:"block",width:"0px",height:"0px",position:"absolute",top:"0px",left:"0px",border:"2px solid red"}).appendTo('body');
 		}
 		
+		function clearMask(){
+			$('div[tag]').remove();
+			masks = [];
+		}
+		
+		var mask;
+		var maskpos = {};
+		var masks = [];
 		function bindEvent(){
 			var img = $('#image'), check = false;
 			img.mouseover((e)=>{ check = true; });
 			img.mouseout((e)=>{ check = false; });
 			//
-			var t = 0, l = 0, mt = 0, ml = 0;
 			var paint = false;
 			$('body').mousedown((e)=>{
 				e.stopPropagation();
 				
 				if(!check) return;
-				if(!paint){
-					l = e.pageX;
-					t = e.pageY;						
-					$('#mask').css({top:t+'px', left:l+'px'});
+				if(!paint){						
+					maskpos.l = e.pageX;
+					maskpos.t = e.pageY;					
+					mask = addMask().css({top:maskpos.t+'px', left:maskpos.l+'px'});
 					paint = true;
 				}
 			});
@@ -48,15 +53,17 @@
 				e.stopPropagation();
 				
 				if(paint){		
-					$('#mask').css({width:(e.pageX-l)+'px', height:(e.pageY-t)+'px'});
+					mask.css({width:(e.pageX-maskpos.l)+'px', height:(e.pageY-maskpos.t)+'px'});
 				}
 			});
 			$('body').mouseup((e)=>{					
 				e.stopPropagation();
 						
-				if(paint){
-					ml = e.pageX;
-					mt = e.pageY;
+				if(paint){					
+					maskpos.ml = e.pageX;
+					maskpos.mt = e.pageY;
+					masks.push(maskpos);
+					maskpos = {};
 				}
 				paint = false;
 			});
@@ -78,8 +85,7 @@
 				let w = img.width();
 				let h = img.height();
 				
-				$.get('/tag', {"w": w, "h": h, "l": l, "t": t, "ml": ml, "mt": mt}, ()=>{
-					initMask();				
+				$.get('/tag', {"w": w, "h": h, "pos": JSON.stringify(masks)}, ()=>{			
 					next();	
 				});
 			});
@@ -94,6 +100,8 @@
 		
 		function showImage(d){ 
 			$('#image').attr('src', d);
+			clearMask();
+			$('#name').text(d);
 		}
 		
 		function curr(){

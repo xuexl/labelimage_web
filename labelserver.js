@@ -8,7 +8,8 @@ const Buffer = require('buffer').Buffer;
 const hostname = '127.0.0.1';
 const port = 3000;
 const root = __dirname;
-const imgdir = '../images2/';
+const imgtype = 'landslide';
+const imgdir = `../${imgtype}/`;
 const server = http.createServer((req, res) => {
 	route(req.url, res);
 	
@@ -22,11 +23,10 @@ server.listen(port, hostname, () => {
 var files = [];
 var cur = 0;
 function init(){	
-	let imgPath = path.join(root, 'images2'); 	
+	let imgPath = path.join(root, imgtype); 	
 	fs.readdir(imgPath, (err, filelist)=>{
 		files = filelist;
-	});
-	console.log(files)
+	});	
 }
 
 //route
@@ -47,7 +47,7 @@ function route(url, res){
 	else if(url.includes('tag')){
 		saveTag(res, url);
 	}
-	else if(url.includes('images')){
+	else if(url.includes(imgtype)){
 		showImg(res, url);
 	}
 	else index(res);
@@ -66,7 +66,6 @@ function index(res){
 function curr(res){
 	//当前图片	
 	let f = files[cur];
-	
 	res.statusCode = 200;
 	res.setHeader('Content-Type', 'text/plain');	
 	res.write(path.join(imgdir, f));
@@ -103,16 +102,31 @@ function saveTag(res, url){
 	let params = querystring.parse(url);
 	let f = files[cur];
 	
-	let imageFolder = 'images';
+	let imageFolder = imgtype;
 	let imageName = f;
 	let w = params.w;
 	let h = params.h;
-	let objectType = 'landslide';
-	let l = params.l;
-	let t = params.t;
-	let ml = params.ml;
-	let mt = params.mt;
-	
+	let objectType = imgtype;
+	let pos = JSON.parse(params.pos);
+	let objs = '';
+	pos.forEach((p)=>{
+		let l = p.l;
+		let t = p.t;
+		let ml = p.ml;
+		let mt = p.mt;		
+		objs = objs + `<object>
+		<name>${objectType}</name>
+		<pose>Unspecified</pose>
+		<truncated>1</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>${l}</xmin>
+			<ymin>${t}</ymin>
+			<xmax>${ml}</xmax>
+			<ymax>${mt}</ymax>
+		</bndbox>
+	</object>`;
+	});
 	let xml = 
 `<annotation>
 	<folder>${imageFolder}</folder>
@@ -126,21 +140,8 @@ function saveTag(res, url){
 		<depth>3</depth>
 	</size>
 	<segmented>0</segmented>
-	<object>
-		<name>${objectType}</name>
-		<pose>Unspecified</pose>
-		<truncated>0</truncated>
-		<difficult>0</difficult>
-		<bndbox>
-			<xmin>${l}</xmin>
-			<ymin>${t}</ymin>
-			<xmax>${ml}</xmax>
-			<ymax>${mt}</ymax>
-		</bndbox>
-	</object>	
-</annotation>`;
-	
-	
+	${objs}
+</annotation>`;	
 	let xmlFileName = imageName.replace('jpg', 'xml');
 	appendToFileList(xmlFileName, xml);
 	
@@ -152,7 +153,7 @@ function saveTag(res, url){
 function appendToFileList(xmlFileName, xmlContent){
 	//添加到文件列表
 	
-	fs.appendFileSync(path.join(root, 'voc', xmlFileName), xmlContent);	
+	fs.appendFileSync(path.join(root, 'voc', imgtype, xmlFileName), xmlContent);	
 }
 
 function showImg(res, url){
