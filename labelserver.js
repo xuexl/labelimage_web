@@ -54,7 +54,6 @@ function route(url, res){
 }
 
 function index(res){
-	//默认打开目录的第一张图片
 	fs.readFile('index.html', (err, content)=>{
 		res.statusCode = 200;
 		res.setHeader('Content-Type', 'text/html');	
